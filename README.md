@@ -10,40 +10,28 @@ cd filecoin-boost
 git submodule update --init --recursive
 ```
 
-## Build
+## Quick start (with [just](https://github.com/casey/just))
 
 ```bash
-make clean docker/all
+just up       # build images + start devnet (first time, ~30 min)
+just deploy   # deploy porep-market contracts + grant datacap + register miners
+just status   # check devnet health
+just stop     # tear down
 ```
 
-Takes 15-30 min first time (Go + Rust compilation). Needs Node.js 22+ and Go 1.25+.
+Needs Node.js 22+, Go 1.25+, Foundry. First start downloads ~2 GB proof parameters.
 
 If on Apple Silicon and you hit FFI issues: `make clean docker/all ffi_from_source=1`.
 
-## Run devnet
+## Manual steps
 
 ```bash
-make devnet/up
+make clean docker/all   # build
+make devnet/up          # start
+make devnet/down        # stop
 ```
 
-First start downloads ~2 GB proof parameters (cached at `~/.cache/filecoin-proof-parameters`).
-
-Ready when:
-```bash
-docker exec lotus lotus chain head    # returns tipset
-docker exec boost boost status        # boost running
-# http://localhost:8080               # boost GUI
-```
-
-## Deploy PoRep Market contracts
-
-See [scripts/porep-market/](scripts/porep-market/README.md).
-
-## Cleanup
-
-```bash
-make devnet/down
-```
+See [scripts/porep-market/](scripts/porep-market/README.md) for individual deploy scripts.
 
 ## Upstream
 
