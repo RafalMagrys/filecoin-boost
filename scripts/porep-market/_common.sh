@@ -2,6 +2,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$SCRIPT_DIR/.env"
 POREP_DIR="$SCRIPT_DIR/porep-market"
+METAALLOC_DIR="$SCRIPT_DIR/contract-metaallocator"
 
 if [ -f "$ENV_FILE" ]; then
     set -a; source "$ENV_FILE"; set +a
