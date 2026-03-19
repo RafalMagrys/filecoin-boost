@@ -17,7 +17,7 @@ deploy:
     bash {{scripts}}/00_setup.sh
     bash {{scripts}}/01_extract_key.sh
     bash {{scripts}}/02_deploy.sh
-    bash {{scripts}}/03_grant_datacap.sh
+    bash {{scripts}}/03_deploy_allocator_and_grant_dc.sh
     bash {{scripts}}/04_register_miner.sh
 
 # check devnet status

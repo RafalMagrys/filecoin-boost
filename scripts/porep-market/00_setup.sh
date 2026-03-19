@@ -34,4 +34,17 @@ cd "$FILPAY_DIR"
 forge install 2>/dev/null || true
 forge build
 
+# contract-metaallocator (needed for datacap allocation)
+METAALLOC_REPO="${METAALLOCATOR_REPO:-https://github.com/fidlabs/contract-metaallocator.git}"
+
+if [ -d "$METAALLOC_DIR" ]; then
+    cd "$METAALLOC_DIR" && git pull origin main 2>/dev/null || true
+else
+    git clone "$METAALLOC_REPO" "$METAALLOC_DIR"
+fi
+
+cd "$METAALLOC_DIR"
+forge install 2>/dev/null || true
+forge build
+
 echo "Done."
