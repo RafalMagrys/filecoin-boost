@@ -14,9 +14,7 @@ if [ -z "$RAIL_ID" ]; then
     exit 1
 fi
 
-DEPLOYER=$(cast wallet address "$PRIVATE_KEY_TEST")
 echo "Method:       settleRail(uint256)"
-echo "Caller:       $DEPLOYER"
 echo "Rail ID:      $RAIL_ID"
 echo ""
 
