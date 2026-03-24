@@ -4,7 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
 REPO="${POREP_MARKET_REPO:-https://github.com/fidlabs/porep-market.git}"
-BRANCH="${POREP_MARKET_BRANCH:-fix-deploy-order}"
+BRANCH="${POREP_MARKET_BRANCH:-main}"
 
 command -v forge &>/dev/null || { echo "ERROR: foundry not installed (https://getfoundry.sh)"; exit 1; }
 

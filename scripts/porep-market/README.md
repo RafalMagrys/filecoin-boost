@@ -2,8 +2,6 @@
 
 Setup and deploy [porep-market](https://github.com/fidlabs/porep-market) contracts on boost devnet.
 
-Uses branch `fix-deploy-order` ([PR #26](https://github.com/fidlabs/porep-market/pull/26)) — main is broken.
-
 ## Prerequisites
 
 - Foundry (`forge`, `cast`)

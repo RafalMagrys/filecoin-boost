@@ -1,4 +1,5 @@
 porep-market/
 filecoin-pay/
+contract-metaallocator/
 *.log
 .env
