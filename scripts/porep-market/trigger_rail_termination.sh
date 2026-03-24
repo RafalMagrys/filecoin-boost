@@ -14,14 +14,15 @@ if [ -z "$VALIDATOR" ] || [ -z "$RAIL_ID" ]; then
     exit 1
 fi
 
-echo "Method:       terminateRail(uint256)"
-echo "Caller:       $VALIDATOR"
-echo "Rail ID:      $RAIL_ID"
+echo "Method:   terminateRail(uint256)"
+echo "Caller:   $VALIDATOR"
+echo "Rail ID:  $RAIL_ID"
 echo ""
 
 cast send \
     --rpc-url "$RPC_URL" \
     --private-key "$PRIVATE_KEY_TEST" \
+    --gas-limit 9000000000 \
     "$VALIDATOR" \
     "terminateRail(uint256)" \
     "$RAIL_ID"

@@ -14,14 +14,16 @@ if [ -z "$RAIL_ID" ]; then
     exit 1
 fi
 
-echo "Method:       settleRail(uint256)"
-echo "Rail ID:      $RAIL_ID"
+echo "Method:   settleRail(uint256)"
+echo "Rail ID:  $RAIL_ID"
 echo ""
 
-cast send $FILECOIN_PAY \
-  "settleRail(uint256)" \
-  $RAIL_ID \
+cast send \
   --rpc-url $RPC_URL \
-  --private-key $PRIVATE_KEY_TEST
+  --private-key $PRIVATE_KEY_TEST \
+  --gas-limit 9000000000 \
+  $FILECOIN_PAY \
+  "settleRail(uint256)" \
+  $RAIL_ID
 
 echo "Done."
