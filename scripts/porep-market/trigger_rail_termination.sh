@@ -14,15 +14,12 @@ if [ -z "$VALIDATOR" ] || [ -z "$RAIL_ID" ]; then
     exit 1
 fi
 
-DEPLOYER=$(cast wallet address "$PRIVATE_KEY_TEST")
 echo "Method:       terminateRail(uint256)"
-echo "Caller:       $DEPLOYER"
-echo "Validator:    $VALIDATOR"
+echo "Caller:       $VALIDATOR"
 echo "Rail ID:      $RAIL_ID"
 echo ""
 
-withRole "$VALIDATOR" POREP_SERVICE_ROLE "$DEPLOYER" \
-    cast send \
+cast send \
     --rpc-url "$RPC_URL" \
     --private-key "$PRIVATE_KEY_TEST" \
     "$VALIDATOR" \
