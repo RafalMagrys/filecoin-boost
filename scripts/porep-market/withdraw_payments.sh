@@ -3,19 +3,21 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 require_devnet
-require_env PRIVATE_KEY_TEST
 require_env FILECOIN_PAY
+require_env PRIVATE_KEY_TEST
 
-RAIL_ID="${1:-}"
+TOKEN="${1:-}"
+AMOUNT="${2:-}"
 
-if [ -z "$RAIL_ID" ]; then
+if [ -z "$TOKEN" ] || [ -z "$AMOUNT" ]; then
     echo "Usage: $0 <RAIL_ID>"
     echo "Example: $0 42"
     exit 1
 fi
 
-echo "Method:   settleRail(uint256)"
-echo "Rail ID:  $RAIL_ID"
+echo "Method:   withdraw(address,uint256)"
+echo "Token:  $TOKEN"
+echo "Amount:  $AMOUNT"
 echo ""
 
 cast send \
@@ -23,8 +25,8 @@ cast send \
   --private-key $PRIVATE_KEY_TEST \
   --gas-limit 9000000000 \
   $FILECOIN_PAY \
-  "settleRail(uint256)" \
-  $RAIL_ID
+  "withdraw(address,uint256)" \
+  "$TOKEN" "$AMOUNT"
 
 wait_for_tx
 
