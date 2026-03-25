@@ -8,7 +8,7 @@ import {FilAddresses} from "filecoin-solidity/v0.8/utils/FilAddresses.sol";
 import {BigInts} from "filecoin-solidity/v0.8/utils/BigInts.sol";
 import {CBOR} from "solidity-cborutils/contracts/CBOR.sol";
 import {FilecoinCBOR} from "filecoin-solidity/v0.8/cbor/FilecoinCbor.sol";
-import {Client} from "../src/Client.sol";
+import {Client} from "src/Client.sol";
 
 /// @notice Forge script that computes ABI-encoded calldata for Client.transfer().
 /// Usage:
