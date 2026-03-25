@@ -27,4 +27,6 @@ cast send \
     "terminateRail(uint256)" \
     "$RAIL_ID"
 
+wait_for_tx
+
 echo "Done."
