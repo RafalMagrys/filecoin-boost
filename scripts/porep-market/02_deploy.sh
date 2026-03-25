@@ -28,6 +28,40 @@ else
     FILPAY_ADDR="$DEPLOYER"
 fi
 
+# Deploy MetaAllocator before main contracts (Deploy.s.sol requires META_ALLOCATOR)
+if [ -z "${META_ALLOCATOR:-}" ]; then
+    echo "Deploying MetaAllocator..."
+    cd "$METAALLOC_DIR"
+
+    ALLOC_IMPL=$(forge create src/Allocator.sol:Allocator \
+        --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
+        --broadcast --json 2>/dev/null | jq -r '.deployedTo')
+    [ -n "$ALLOC_IMPL" ] && [ "$ALLOC_IMPL" != "null" ] || { echo "ERROR: Allocator deploy failed"; exit 1; }
+    echo "  Allocator impl: $ALLOC_IMPL"
+    wait_for_tx
+
+    FACTORY=$(forge create src/Factory.sol:Factory \
+        --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
+        --broadcast --json \
+        --constructor-args "$DEPLOYER" "$ALLOC_IMPL" \
+        2>/dev/null | jq -r '.deployedTo')
+    [ -n "$FACTORY" ] && [ "$FACTORY" != "null" ] || { echo "ERROR: Factory deploy failed"; exit 1; }
+    echo "  Factory: $FACTORY"
+    wait_for_tx
+
+    cast send --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
+        "$FACTORY" 'deploy(address)' "$DEPLOYER"
+    wait_for_tx
+
+    META_ALLOCATOR=$(cast call --rpc-url "$RPC_URL" "$FACTORY" 'contracts(uint256)(address)' 0)
+    echo "  MetaAllocator proxy: $META_ALLOCATOR"
+
+    update_env "META_ALLOCATOR" "$META_ALLOCATOR"
+    update_env "ALLOCATOR_FACTORY" "$FACTORY"
+else
+    echo "MetaAllocator already deployed: $META_ALLOCATOR"
+fi
+
 cd "$POREP_DIR"
 
 export PRIVATE_KEY="$PRIVATE_KEY_TEST"
@@ -36,6 +70,7 @@ export FILECOIN_PAY="$FILPAY_ADDR"
 export ORACLE="$DEPLOYER"
 export POREP_SERVICE="$DEPLOYER"
 export OPERATOR_ADDR="$DEPLOYER"
+export META_ALLOCATOR
 
 forge clean && forge build
 

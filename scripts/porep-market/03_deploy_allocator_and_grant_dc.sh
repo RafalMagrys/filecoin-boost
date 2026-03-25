@@ -38,46 +38,13 @@ propose_and_approve_verifier() {
     wait_for_tx
 }
 
-# ============================================================
-# Phase 1: Deploy MetaAllocator (per README: forge create flow)
-# ============================================================
-echo "=== Phase 1: Deploy MetaAllocator ==="
-
-cd "$METAALLOC_DIR"
-
-echo "Deploying Allocator implementation..."
-ALLOC_IMPL=$(forge create src/Allocator.sol:Allocator \
-    --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
-    --broadcast --json 2>/dev/null | jq -r '.deployedTo')
-[ -n "$ALLOC_IMPL" ] && [ "$ALLOC_IMPL" != "null" ] || { echo "ERROR: Allocator deploy failed"; exit 1; }
-echo "  Allocator impl: $ALLOC_IMPL"
-wait_for_tx
-
-echo "Deploying Factory..."
-FACTORY=$(forge create src/Factory.sol:Factory \
-    --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
-    --broadcast --json \
-    --constructor-args "$DEPLOYER" "$ALLOC_IMPL" \
-    2>/dev/null | jq -r '.deployedTo')
-[ -n "$FACTORY" ] && [ "$FACTORY" != "null" ] || { echo "ERROR: Factory deploy failed"; exit 1; }
-echo "  Factory: $FACTORY"
-wait_for_tx
-
-echo "Creating Allocator proxy via Factory..."
-cast send --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
-    "$FACTORY" 'deploy(address)' "$DEPLOYER"
-wait_for_tx
-
-META_ALLOCATOR=$(cast call --rpc-url "$RPC_URL" "$FACTORY" 'contracts(uint256)(address)' 0)
-echo "  MetaAllocator proxy: $META_ALLOCATOR"
-
-update_env "META_ALLOCATOR" "$META_ALLOCATOR"
-update_env "ALLOCATOR_FACTORY" "$FACTORY"
+# MetaAllocator is now deployed in 02_deploy.sh (required by Deploy.s.sol)
+require_env META_ALLOCATOR
 
 # ============================================================
-# Phase 2: Make MetaAllocator a verifier (notary)
+# Phase 1: Make MetaAllocator a verifier (notary)
 # ============================================================
-echo "=== Phase 2: Register MetaAllocator as verifier ==="
+echo "=== Phase 1: Register MetaAllocator as verifier ==="
 
 META_FIL_ADDR=$(docker exec lotus lotus evm stat "$META_ALLOCATOR" \
     | awk '/Filecoin address:/{print $3}' | tr -d '\r\n')
@@ -89,9 +56,9 @@ echo "  Verifiers:"
 docker exec lotus lotus filplus list-notaries
 
 # ============================================================
-# Phase 3: Grant allowance on MetaAllocator to deployer
+# Phase 2: Grant allowance on MetaAllocator to deployer
 # ============================================================
-echo "=== Phase 3: Grant allowance to deployer on MetaAllocator ==="
+echo "=== Phase 2: Grant allowance to deployer on MetaAllocator ==="
 
 cast send --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
     "$META_ALLOCATOR" 'addAllowance(address,uint256)' \
@@ -102,9 +69,9 @@ echo "  Deployer allowance: $(cast call --rpc-url "$RPC_URL" \
     "$META_ALLOCATOR" 'allowance(address)(uint256)' "$DEPLOYER")"
 
 # ============================================================
-# Phase 4: Grant datacap to Client.sol via MetaAllocator
+# Phase 3: Grant datacap to Client.sol via MetaAllocator
 # ============================================================
-echo "=== Phase 4: Grant datacap to Client via addVerifiedClient ==="
+echo "=== Phase 3: Grant datacap to Client via addVerifiedClient ==="
 
 # Build f4 address bytes: 0x04 (protocol 4) + 0x0a (EAM id=10) + 20-byte eth addr
 CLIENT_LOWER=$(echo "$CLIENT_CONTRACT" | tr '[:upper:]' '[:lower:]')
@@ -125,10 +92,10 @@ echo "  Verifying datacap via MetaAllocator..."
 docker exec lotus lotus filplus check-client-datacap "$CLIENT_FIL_ADDR" || true
 
 # ============================================================
-# Phase 5: TEMPORARY — direct datacap grant to Client.sol
+# Phase 4: TEMPORARY — direct datacap grant to Client.sol
 # TODO: Remove this phase once full MetaAllocator flow is validated
 # ============================================================
-echo "=== Phase 5: TEMPORARY direct datacap grant ==="
+echo "=== Phase 4: TEMPORARY direct datacap grant ==="
 
 VERIFIER_WALLET=$(docker exec lotus lotus wallet new | tr -d '\r\n')
 echo "  Verifier wallet: $VERIFIER_WALLET"
