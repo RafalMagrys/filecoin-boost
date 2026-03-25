@@ -19,6 +19,8 @@ deploy:
     bash {{scripts}}/02_deploy.sh
     bash {{scripts}}/03_deploy_allocator_and_grant_dc.sh
     bash {{scripts}}/04_register_miner.sh
+    bash {{scripts}}/05_deploy_token.sh
+    bash {{scripts}}/06_setup_sli.sh
 
 # check devnet status
 status:
