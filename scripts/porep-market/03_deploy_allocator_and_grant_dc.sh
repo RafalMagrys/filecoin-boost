@@ -68,6 +68,15 @@ wait_for_tx
 echo "  Deployer allowance: $(cast call --rpc-url "$RPC_URL" \
     "$META_ALLOCATOR" 'allowance(address)(uint256)' "$DEPLOYER")"
 
+echo "Granting allowance to Client contract on MetaAllocator..."
+cast send --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
+    "$META_ALLOCATOR" 'addAllowance(address,uint256)' \
+    "$CLIENT_CONTRACT" 999999999999999999
+wait_for_tx
+
+echo "  Client allowance: $(cast call --rpc-url "$RPC_URL" \
+    "$META_ALLOCATOR" 'allowance(address)(uint256)' "$CLIENT_CONTRACT")"
+
 # ============================================================
 # Phase 3: Grant datacap to Client.sol via MetaAllocator
 # ============================================================
@@ -91,25 +100,7 @@ update_env "CLIENT_FIL_ADDR" "$CLIENT_FIL_ADDR"
 echo "  Verifying datacap via MetaAllocator..."
 docker exec lotus lotus filplus check-client-datacap "$CLIENT_FIL_ADDR" || true
 
-# ============================================================
-# Phase 4: TEMPORARY — direct datacap grant to Client.sol
-# TODO: Remove this phase once full MetaAllocator flow is validated
-# ============================================================
-echo "=== Phase 4: TEMPORARY direct datacap grant ==="
-
-VERIFIER_WALLET=$(docker exec lotus lotus wallet new | tr -d '\r\n')
-echo "  Verifier wallet: $VERIFIER_WALLET"
-docker exec lotus lotus send "$VERIFIER_WALLET" 10000
-wait_for_tx
-
-propose_and_approve_verifier "$VERIFIER_WALLET" 999999999999999999
-
-docker exec lotus lotus filplus grant-datacap \
-    --from "$VERIFIER_WALLET" "$CLIENT_FIL_ADDR" 99999999999
-wait_for_tx
-
 echo "  Final datacap check:"
 docker exec lotus lotus filplus check-client-datacap "$CLIENT_FIL_ADDR"
 
-update_env "VERIFIER_WALLET" "$VERIFIER_WALLET"
 echo "Done."
