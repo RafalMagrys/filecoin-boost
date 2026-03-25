@@ -9,7 +9,7 @@ DEPLOYER=$(cast wallet address "$PRIVATE_KEY_TEST")
 
 echo "=== Register miners in SPRegistry ==="
 
-# (actorId, retrievabilityBps, bandwidthMbps, latencyMs, indexingPct, availableGB, pricePerSector)
+# (actorId, retrievabilityBps, bandwidthMbps, latencyMs, indexingPct, availableGB, pricePerSectorPerMonth)
 MINERS=(
     "$MINER_ACTOR_ID  10000  1000  100  100  1  0"
     "1001             8000   500   200  80   5  0"
@@ -26,8 +26,8 @@ register_miner() {
         --private-key "$PRIVATE_KEY_TEST" \
         --rpc-url "$RPC_URL" \
         "$SP_REGISTRY" \
-        "registerProviderFor(uint64,address,(uint16,uint16,uint16,uint8),uint256,uint256)" \
-        "$id" "$DEPLOYER" "($retr,$bw,$lat,$idx)" "$avail" "$price"
+        "registerProviderFor(uint64,address,(uint16,uint16,uint16,uint8),uint256,uint256,address)" \
+        "$id" "$DEPLOYER" "($retr,$bw,$lat,$idx)" "$avail" "$price" "$DEPLOYER"
 
     wait_for_tx
 
