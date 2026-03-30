@@ -23,8 +23,11 @@ contract ComputeTransferCalldata is Script {
         uint256 dealId = vm.envOr("DEAL_ID", uint256(1));
         bool dealCompleted = vm.envOr("DEAL_COMPLETED", true);
 
-        bytes memory pieceCid =
-            hex"0181e203922020ab68b07850bae544b4e720ff59fdc7de709a8b5a8e83d6b7ab3ac2fa83e8461b";
+        // PIECE_CID_HEX: raw CIDv1 bytes for the piece. Defaults to the devnet sample CAR CommP.
+        bytes memory pieceCid = vm.envOr(
+            "PIECE_CID_HEX",
+            hex"0181e203922020ab68b07850bae544b4e720ff59fdc7de709a8b5a8e83d6b7ab3ac2fa83e8461b"
+        );
 
         bytes memory operatorData = _buildOperatorData(provider, pieceCid, pieceSize, 518400, 5256000, 100000);
 

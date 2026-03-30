@@ -14,6 +14,7 @@ cd "$POREP_DIR"
 
 echo "Deploying MockUSDC..."
 USDC_TOKEN=$(forge create "$SCRIPT_DIR/mocks/MockUSDC.sol:MockUSDC" \
+    --constructor-args "Mock USDC" "USDC" \
     --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
     --broadcast --json 2>/dev/null | jq -r '.deployedTo')
 [ -n "$USDC_TOKEN" ] && [ "$USDC_TOKEN" != "null" ] || { echo "ERROR: MockUSDC deploy failed"; exit 1; }
