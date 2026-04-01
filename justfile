@@ -22,6 +22,10 @@ deploy:
     bash {{scripts}}/05_deploy_token.sh
     bash {{scripts}}/06_setup_sli.sh
 
+
+deposit-and-approve-operator DEAL_ID:
+    bash {{scripts}}/deposit_and_approve_operator.sh {{DEAL_ID}}
+
 # check devnet status
 status:
     @docker exec lotus lotus chain head && echo "devnet: ok" || echo "devnet: down"
