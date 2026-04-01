@@ -13,7 +13,11 @@ if [ -z "$DEAL_ID" ]; then
     exit 1
 fi
 
-VALIDATOR_ADDR=$(cast call --rpc-url "$RPC_URL" "$VALIDATOR_FACTORY" "getInstance(uint256)(address)" "$DEAL_ID" | head -1)
+VALIDATOR_ADDR=$(cast call \
+  --rpc-url "$RPC_URL" \
+  "$VALIDATOR_FACTORY" \
+  "getInstance(uint256)(address)" \
+  "$DEAL_ID" | head -1)
 
 if [ -z "$VALIDATOR_ADDR" ]; then
     echo "ERROR: Validator not found for deal ID $DEAL_ID"
@@ -24,21 +28,30 @@ fi
 CLIENT_ADDR=$(cast wallet address --private-key "$PRIVATE_KEY_TEST")
 MAX_UINT256=$(cast max-uint uint256)
 
-echo "TX6: Deposit + Operator Approval"
-echo "  RPC=$RPC_URL  Client=$CLIENT_ADDR"
-echo "  Deal ID=$DEAL_ID"
-echo "  Validator=$VALIDATOR_ADDR"
-echo "  MaxUint256=$MAX_UINT256"
-echo "  Token=$USDC_TOKEN  FilecoinPay=$FILECOIN_PAY  Validator=$VALIDATOR_ADDR"
+BALANCE=$(cast call \
+  --rpc-url "$RPC_URL" \
+  "$USDC_TOKEN" \
+  "balanceOf(address)(uint256)" \
+  "$CLIENT_ADDR" | awk '{print $1}')
 
 read -r V R S DEPOSIT_AMOUNT PERMIT_DEADLINE < <(
   node "$SCRIPT_DIR/sign_permit.js" "$RPC_URL" "$PRIVATE_KEY_TEST" "$USDC_TOKEN" "$FILECOIN_PAY" \
   | jq -r '[.v, .r, .s, .amount, .deadline] | @tsv'
 )
-echo "  Amount=$DEPOSIT_AMOUNT  Deadline=$PERMIT_DEADLINE  Permit sig: v=$V r=$R s=$S"
 
-BALANCE=$(cast call "$USDC_TOKEN" "balanceOf(address)(uint256)" "$CLIENT_ADDR" --rpc-url "$RPC_URL" | awk '{print $1}')
-[ "$(cast to-dec "$BALANCE")" -lt "$DEPOSIT_AMOUNT" ] 2>/dev/null && { echo "ERROR: insufficient USDFC — need $DEPOSIT_AMOUNT, have $BALANCE" >&2; exit 1; }
+if [ "$(cast to-dec "$BALANCE")" -lt "$DEPOSIT_AMOUNT" ] 2>/dev/null; then
+    echo "ERROR: insufficient USDC — need $DEPOSIT_AMOUNT, have $BALANCE" >&2
+    exit 1
+fi
+
+echo "=== TX6: Deposit + Operator Approval ==="
+echo "  RPC=$RPC_URL  Client=$CLIENT_ADDR"
+echo "  Deal ID=$DEAL_ID"
+echo "  Validator=$VALIDATOR_ADDR"
+echo "  Balance=$BALANCE"
+echo "  MaxUint256=$MAX_UINT256"
+echo "  Token=$USDC_TOKEN  FilecoinPay=$FILECOIN_PAY  Validator=$VALIDATOR_ADDR"
+echo "  Amount=$DEPOSIT_AMOUNT  Deadline=$PERMIT_DEADLINE  Permit sig: v=$V r=$R s=$S"
 
 RECEIPT=$(cast send \
   --gas-limit 9000000000 \
@@ -57,7 +70,7 @@ if [ "$STATUS" != "0x1" ]; then
     exit 1
 fi
 
-echo "Transaction completed"
+echo "=== Transaction completed ==="
 echo "  TX=$TX_HASH"
 echo "  Status: $STATUS"
 
