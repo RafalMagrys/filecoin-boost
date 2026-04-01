@@ -29,3 +29,15 @@ status:
 
 logs:
     docker compose -f docker/devnet/docker-compose.yaml logs -f
+
+modify-rail-payment VALIDATOR_ADDRESS RAIL_ID:
+    bash {{scripts}}/modify_rail_payment.sh {{VALIDATOR_ADDRESS}} {{RAIL_ID}}
+
+calculate-withdrawal RAIL_ID:
+    bash {{scripts}}/trigger_settle_rail.sh {{RAIL_ID}}
+
+rail-termination VALIDATOR_ADDRESS RAIL_ID:
+    bash {{scripts}}/trigger_rail_termination.sh {{VALIDATOR_ADDRESS}} {{RAIL_ID}}
+
+withdraw-payments AMOUNT RAIL_ID:
+    bash {{scripts}}/withdraw_payments {{AMOUNT}}
