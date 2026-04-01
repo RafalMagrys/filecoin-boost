@@ -15,9 +15,9 @@ if [ -z "$VALIDATOR" ] || [ -z "$RAIL_ID" ]; then
 fi
 
 echo "Method:   modifyRailPayment(uint256)"
-echo "Caller:   $VALIDATOR"
+echo "Validator: $VALIDATOR"
+echo "Sender:   $DEPLOYER"
 echo "Rail ID:  $RAIL_ID"
-echo ""
 
 cast send \
     --rpc-url "$RPC_URL" \

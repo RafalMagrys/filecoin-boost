@@ -1,9 +1,11 @@
 #!/bin/bash
 set -euo pipefail
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
+
 require_devnet
-require_env PRIVATE_KEY_TEST FILECOIN_PAY 
+require_env PRIVATE_KEY_TEST FILECOIN_PAY
 
 RAIL_ID="${1:-}"
 
@@ -30,8 +32,25 @@ SETTLE_RAIL_TX_HASH=$(cast send \
   --gas-limit 9000000000 \
   --json | jq -r '.transactionHash')
 
-update_env "SETTLE_RAIL_TX_HASH" "$SETTLE_RAIL_TX_HASH"
-
 wait_for_tx
+
+echo "Transaction: $SETTLE_RAIL_TX_HASH"
+
+# --------------------------
+# FETCH RECEIPT
+# --------------------------
+
+RECEIPT=$(cast receipt $SETTLE_RAIL_TX_HASH --rpc-url $RPC_URL --json)
+
+EVENT_DATA=$(echo "$RECEIPT" | jq -r '.logs[0].data')
+
+# decode event payload
+read _ TOTAL_SETTLED _ _ _ _ <<< $(cast abi-decode \
+"(uint256,uint256,uint256,uint256,uint256,uint256)" \
+$EVENT_DATA)
+
+echo "Rail settlement result"
+echo "Rail ID:              $RAIL_ID"
+echo "Total settled amount: $TOTAL_SETTLED"
 
 echo "Done."
