@@ -5,10 +5,11 @@ source "$SCRIPT_DIR/_common.sh"
 require_env PRIVATE_KEY_TEST FILECOIN_PAY USDC_TOKEN VALIDATOR_FACTORY
 
 DEAL_ID="${1:-}"
+DEPOSIT_AMOUNT_INPUT="${2:-1000}"
 
 if [ -z "$DEAL_ID" ]; then
     echo "No deal ID provided"
-    echo "Usage: $0 <deal_id>"
+    echo "Usage: $0 <deal_id> [deposit_amount]"
     echo ""
     exit 1
 fi
@@ -35,11 +36,11 @@ BALANCE=$(cast call \
   "$CLIENT_ADDR" | awk '{print $1}')
 
 read -r V R S DEPOSIT_AMOUNT PERMIT_DEADLINE < <(
-  node "$SCRIPT_DIR/sign_permit.js" "$RPC_URL" "$PRIVATE_KEY_TEST" "$USDC_TOKEN" "$FILECOIN_PAY" \
+  node "$SCRIPT_DIR/sign_permit.js" "$RPC_URL" "$PRIVATE_KEY_TEST" "$USDC_TOKEN" "$FILECOIN_PAY" "$DEPOSIT_AMOUNT_INPUT" \
   | jq -r '[.v, .r, .s, .amount, .deadline] | @tsv'
 )
 
-if [ "$(cast to-dec "$BALANCE")" -lt "$DEPOSIT_AMOUNT" ] 2>/dev/null; then
+if node -e "process.exit(BigInt(process.argv[1]) < BigInt(process.argv[2]) ? 0 : 1)" "$BALANCE" "$DEPOSIT_AMOUNT"; then
     echo "ERROR: insufficient USDC — need $DEPOSIT_AMOUNT, have $BALANCE" >&2
     exit 1
 fi

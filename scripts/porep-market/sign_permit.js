@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { ethers } from "ethers";
 
-const [rpcUrl, privateKey, tokenAddr, spender] = process.argv.slice(2);
+const [rpcUrl, privateKey, tokenAddr, spender, inputAmount = "1000"] = process.argv.slice(2);
 
 const provider = new ethers.JsonRpcProvider(rpcUrl);
 const signer = new ethers.Wallet(privateKey, provider);
@@ -16,7 +16,7 @@ const [nonce, name, network] = await Promise.all([
   provider.getNetwork(),
 ]);
 
-const amount = ethers.parseUnits("1000", 6);
+const amount = ethers.parseUnits(inputAmount, 6);
 const deadline = Math.floor(Date.now() / 1000) + 3600;
 
 const sig = ethers.Signature.from(await signer.signTypedData(
