@@ -38,3 +38,6 @@ calculate-withdrawal RAIL_ID:
 
 rail-termination VALIDATOR_ADDRESS RAIL_ID:
     bash {{scripts}}/trigger_rail_termination.sh {{VALIDATOR_ADDRESS}} {{RAIL_ID}}
+
+withdraw-payments AMOUNT RAIL_ID:
+    bash {{scripts}}/withdraw_payments {{AMOUNT}}
