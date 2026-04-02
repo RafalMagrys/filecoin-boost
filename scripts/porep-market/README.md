@@ -24,6 +24,30 @@ Or run all steps at once: `just deploy`
 
 Config in `.env` (auto-created from `env.example`).
 
+## Operator Steps
+
+After setup, run the deal lifecycle steps in order:
+
+```bash
+bash steps/prepare_operator.sh   # fund SP wallet, set payee, seed SLI oracle
+bash steps/generate_piece.sh     # generate a random CAR file and compute CommP
+bash steps/make_allocation.sh    # transfer datacap, create on-chain allocation
+bash steps/import_piece.sh       # import piece into boost for sealing
+bash steps/wait_for_claim.sh     # poll until miner claims the allocation
+```
+
+Or via just:
+
+```bash
+just prepare-operator
+just generate-piece
+just make-allocation
+just import-piece
+just wait-for-claim
+```
+
+State is persisted in `.state` between steps — resume from any step after a failure.
+
 ## Troubleshooting
 
 ```bash
