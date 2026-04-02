@@ -4,7 +4,7 @@
 # State out: ALLOC_ID, PROVIDER
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../_common.sh"
+source "$SCRIPT_DIR/_common.sh"
 require_devnet
 require_porep
 require_env PRIVATE_KEY_TEST CLIENT_CONTRACT POREP_MARKET

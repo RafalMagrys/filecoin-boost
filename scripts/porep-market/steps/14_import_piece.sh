@@ -4,7 +4,7 @@
 # State in: ALLOC_ID, PIECE_CID, PIECE_CAR_PATH
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../_common.sh"
+source "$SCRIPT_DIR/_common.sh"
 require_devnet
 
 state_load

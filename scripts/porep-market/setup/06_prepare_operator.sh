@@ -5,7 +5,7 @@
 # State out: DEPLOYER, SP_WALLET, MINER_ID
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../_common.sh"
+source "$SCRIPT_DIR/_common.sh"
 require_devnet
 require_env PRIVATE_KEY_TEST PRIVATE_KEY_SP POREP_MARKET CLIENT_CONTRACT \
             SP_REGISTRY SLI_ORACLE USDC_TOKEN

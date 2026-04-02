@@ -1,8 +1,8 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ENV_FILE="$SCRIPT_DIR/.env"
-POREP_DIR="$SCRIPT_DIR/porep-market"
-METAALLOC_DIR="$SCRIPT_DIR/contract-metaallocator"
+ENV_FILE="$SCRIPT_DIR/../.env"
+POREP_DIR="$SCRIPT_DIR/../porep-market"
+METAALLOC_DIR="$SCRIPT_DIR/../contract-metaallocator"
 
 if [ -f "$ENV_FILE" ]; then
     set -a; source "$ENV_FILE"; set +a
@@ -29,7 +29,7 @@ require_porep() {
 
 update_env() {
     local key="$1" val="$2"
-    [ -f "$ENV_FILE" ] || cp "$SCRIPT_DIR/env.example" "$ENV_FILE"
+    [ -f "$ENV_FILE" ] || cp "$SCRIPT_DIR/../env.example" "$ENV_FILE"
     if grep -q "^${key}=" "$ENV_FILE" 2>/dev/null; then
         sed -i '' "s|^${key}=.*|${key}=${val}|" "$ENV_FILE"
     else
@@ -62,12 +62,12 @@ wait_for_tx() {
 }
 
 # --- State file management ---
-STATE_FILE="${STATE_FILE:-$SCRIPT_DIR/.state}"
+STATE_FILE="${STATE_FILE:-$SCRIPT_DIR/../.state}"
 
 state_set() {
     local key="$1" val="$2"
     if [ ! -f "$STATE_FILE" ]; then
-        [ -f "$SCRIPT_DIR/state.example" ] && cp "$SCRIPT_DIR/state.example" "$STATE_FILE" || touch "$STATE_FILE"
+        [ -f "$SCRIPT_DIR/../state.example" ] && cp "$SCRIPT_DIR/../state.example" "$STATE_FILE" || touch "$STATE_FILE"
     fi
     if grep -q "^${key}=" "$STATE_FILE" 2>/dev/null; then
         sed -i '' "s|^${key}=.*|${key}=${val}|" "$STATE_FILE"

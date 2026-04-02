@@ -13,7 +13,7 @@ echo "Deployer: $DEPLOYER"
 cd "$POREP_DIR"
 
 echo "Deploying MockUSDC..."
-DEPLOY_OUTPUT=$(forge script "$SCRIPT_DIR/mocks/DeployMockUSDC.s.sol" \
+DEPLOY_OUTPUT=$(forge script "$SCRIPT_DIR/../mocks/DeployMockUSDC.s.sol" \
     --rpc-url "$RPC_URL" \
     --private-key "$PRIVATE_KEY_TEST" \
     --broadcast \
