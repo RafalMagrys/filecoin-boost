@@ -16,7 +16,6 @@ fi
 
 echo "Method:   modifyRailPayment(uint256)"
 echo "Validator: $VALIDATOR"
-echo "Sender:   $DEPLOYER"
 echo "Rail ID:  $RAIL_ID"
 
 cast send \
