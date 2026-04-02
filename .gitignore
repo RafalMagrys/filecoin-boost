@@ -27,3 +27,5 @@ lotus-daemon.log
 lotus-miner.log
 .devcontainer/
 .env
+scripts/porep-market/.env
+scripts/porep-market/node_modules/

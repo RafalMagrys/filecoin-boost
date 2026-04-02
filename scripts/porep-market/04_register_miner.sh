@@ -16,6 +16,9 @@ MINERS=(
     "1002             5000   100   500  50   10 100"
 )
 
+MIN_DEAL_DURATION_DAYS=1
+MAX_DEAL_DURATION_DAYS=1278
+
 register_miner() {
     local id="$1" retr="$2" bw="$3" lat="$4" idx="$5" gb="$6" price="$7"
     local avail=$(( gb * 1024 * 1024 * 1024 ))
@@ -27,7 +30,7 @@ register_miner() {
         --rpc-url "$RPC_URL" \
         "$SP_REGISTRY" \
         "registerProviderFor(uint64,address,(uint16,uint16,uint16,uint8),uint256,uint256,address,uint32,uint32)" \
-        "$id" "$DEPLOYER" "($retr,$bw,$lat,$idx)" "$avail" "$price" "$DEPLOYER" 0 0
+        "$id" "$DEPLOYER" "($retr,$bw,$lat,$idx)" "$avail" "$price" "$DEPLOYER" "$MIN_DEAL_DURATION_DAYS" "$MAX_DEAL_DURATION_DAYS"
 
     wait_for_tx
 

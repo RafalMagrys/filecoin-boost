@@ -22,6 +22,10 @@ deploy:
     bash {{scripts}}/05_deploy_token.sh
     bash {{scripts}}/06_setup_sli.sh
 
+
+deposit-and-approve-operator DEAL_ID AMOUNT="1000":
+    bash {{scripts}}/deposit_and_approve_operator.sh {{DEAL_ID}} {{AMOUNT}}
+
 # check devnet status
 status:
     @docker exec lotus lotus chain head && echo "devnet: ok" || echo "devnet: down"
@@ -36,7 +40,6 @@ prepare-operator:
 generate-piece:
     bash {{scripts}}/steps/generate_piece.sh
 
-
 make-allocation:
     bash {{scripts}}/steps/make_allocation.sh
 
@@ -46,3 +49,14 @@ import-piece:
 wait-for-claim:
     bash {{scripts}}/steps/wait_for_claim.sh
 
+modify-rail-payment VALIDATOR_ADDRESS RAIL_ID:
+    bash {{scripts}}/modify_rail_payment.sh {{VALIDATOR_ADDRESS}} {{RAIL_ID}}
+
+calculate-withdrawal RAIL_ID:
+    bash {{scripts}}/trigger_settle_rail.sh {{RAIL_ID}}
+
+rail-termination VALIDATOR_ADDRESS RAIL_ID:
+    bash {{scripts}}/trigger_rail_termination.sh {{VALIDATOR_ADDRESS}} {{RAIL_ID}}
+
+withdraw-payments AMOUNT RAIL_ID:
+    bash {{scripts}}/withdraw_payments {{AMOUNT}}

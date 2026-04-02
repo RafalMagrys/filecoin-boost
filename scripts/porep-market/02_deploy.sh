@@ -76,6 +76,7 @@ export FILECOIN_PAY="$FILPAY_ADDR"
 export ORACLE="$DEPLOYER"
 export POREP_SERVICE="$DEPLOYER"
 export OPERATOR_ADDR="$DEPLOYER"
+export ALLOCATOR="$DEPLOYER"
 export META_ALLOCATOR
 
 forge clean && forge build
