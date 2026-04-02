@@ -8,6 +8,8 @@ require_env PRIVATE_KEY_TEST
 
 DEPLOYER=$(cast wallet address "$PRIVATE_KEY_TEST")
 echo "Deployer: $DEPLOYER"
+# ETH_RPC_URL must match RPC_URL; an empty string causes forge to fall back to localhost:8545
+export ETH_RPC_URL="$RPC_URL"
 
 docker exec lotus lotus send "$DEPLOYER" 10000 2>/dev/null || true
 wait_for_tx
@@ -29,7 +31,9 @@ else
 fi
 
 # Deploy MetaAllocator before main contracts (Deploy.s.sol requires META_ALLOCATOR)
-if [ -z "${META_ALLOCATOR:-}" ]; then
+# Also redeploy if the stored address no longer has code (stale devnet)
+_meta_code=$([ -n "${META_ALLOCATOR:-}" ] && cast code --rpc-url "$RPC_URL" "$META_ALLOCATOR" 2>/dev/null || echo "0x")
+if [ -z "${META_ALLOCATOR:-}" ] || [ "$_meta_code" = "0x" ]; then
     echo "Deploying MetaAllocator..."
     cd "$METAALLOC_DIR"
 
@@ -49,12 +53,14 @@ if [ -z "${META_ALLOCATOR:-}" ]; then
     echo "  Factory: $FACTORY"
     wait_for_tx
 
-    cast send --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
-        "$FACTORY" 'deploy(address)' "$DEPLOYER"
-    wait_for_tx
+    DEPLOY_HASH=$(cast send --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
+        --json "$FACTORY" 'deploy(address)' "$DEPLOYER" 2>/dev/null | jq -r '.transactionHash // empty')
+    [ -n "$DEPLOY_HASH" ] || { echo "ERROR: factory deploy() tx submission failed"; exit 1; }
+    wait_for_tx "$DEPLOY_HASH"
 
     META_ALLOCATOR=$(cast call --rpc-url "$RPC_URL" "$FACTORY" 'contracts(uint256)(address)' 0)
     echo "  MetaAllocator proxy: $META_ALLOCATOR"
+    [ -n "$META_ALLOCATOR" ] && [ "$META_ALLOCATOR" != "0x0000000000000000000000000000000000000000" ] || { echo "ERROR: MetaAllocator address is zero"; exit 1; }
 
     update_env "META_ALLOCATOR" "$META_ALLOCATOR"
     update_env "ALLOCATOR_FACTORY" "$FACTORY"

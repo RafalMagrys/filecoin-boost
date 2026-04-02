@@ -34,6 +34,21 @@ status:
 logs:
     docker compose -f docker/devnet/docker-compose.yaml logs -f
 
+prepare-operator:
+    bash {{scripts}}/steps/prepare_operator.sh
+
+generate-piece:
+    bash {{scripts}}/steps/generate_piece.sh
+
+make-allocation:
+    bash {{scripts}}/steps/make_allocation.sh
+
+import-piece:
+    bash {{scripts}}/steps/import_piece.sh
+
+wait-for-claim:
+    bash {{scripts}}/steps/wait_for_claim.sh
+
 modify-rail-payment VALIDATOR_ADDRESS RAIL_ID:
     bash {{scripts}}/modify_rail_payment.sh {{VALIDATOR_ADDRESS}} {{RAIL_ID}}
 

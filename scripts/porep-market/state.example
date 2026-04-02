@@ -1,0 +1,37 @@
+# Runtime state — auto-populated by step scripts.
+# Copy to .state before running steps:
+#   cp state.example .state
+
+# set by: prepare_operator.sh
+DEPLOYER=
+SP_WALLET=
+MINER_ID=
+
+# set by: generate_piece.sh
+PIECE_CID=
+PIECE_SIZE=
+PIECE_CID_HEX=
+PIECE_CAR_PATH=
+
+# set by: propose_deal.sh
+DEAL_ID=
+
+# set by: make_allocation.sh
+ALLOC_ID=
+PROVIDER=
+
+# set by: create_validator.sh
+VALIDATOR=
+
+# set by: setup_payment.sh
+RAIL_ID=
+
+# set by: activate_payment.sh
+RAIL_RATE=
+END_EPOCH=
+
+# set by: settle_rail.sh
+PAID_AMOUNT=
+
+# set by: withdraw.sh
+SP_ERC20_BALANCE=
