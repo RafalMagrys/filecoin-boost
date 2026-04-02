@@ -27,7 +27,7 @@ BALANCE_BEFORE=$(cast call \
   --rpc-url $RPC_URL \
   $USDC_TOKEN \
   "balanceOf(address)(uint256)" \
-  $DEPLOYER)
+  $DEPLOYER | awk '{print $1}')
 
 echo "Balance before: $BALANCE_BEFORE"
 
@@ -51,7 +51,7 @@ BALANCE_AFTER=$(cast call \
   --rpc-url $RPC_URL \
   $USDC_TOKEN \
   "balanceOf(address)(uint256)" \
-  $DEPLOYER)
+  $DEPLOYER | awk '{print $1}')
 
 echo "Balance after:  $BALANCE_AFTER"
 
