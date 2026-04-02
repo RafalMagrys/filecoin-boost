@@ -48,6 +48,21 @@ just wait-for-claim
 
 State is persisted in `.state` between steps — resume from any step after a failure.
 
+To start a fresh run, delete `.state`:
+
+```bash
+rm -f scripts/porep-market/.state
+```
+
+To run a single step without the full pipeline, pre-populate `.state` from the example:
+
+```bash
+cp state.example .state   # edit the values you need
+STATE_FILE=.state bash steps/make_allocation.sh
+```
+
+See `state.example` for all keys and which step produces each one.
+
 ## Troubleshooting
 
 ```bash
