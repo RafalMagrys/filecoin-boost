@@ -37,4 +37,93 @@ update_env() {
     fi
 }
 
-wait_for_tx() { sleep 15; }
+wait_for_tx() {
+    local tx_hash="${1:-}"
+    if [ -z "$tx_hash" ]; then
+        sleep 15
+        return
+    fi
+    local attempts=0
+    while [ $attempts -lt 60 ]; do
+        local status
+        status=$(cast receipt --rpc-url "$RPC_URL" "$tx_hash" --json 2>/dev/null | jq -r '.status // empty' 2>/dev/null) || true
+        if [ "$status" = "0x1" ]; then
+            return 0
+        elif [ "$status" = "0x0" ]; then
+            echo "ERROR: tx $tx_hash reverted"
+            return 1
+        fi
+        attempts=$((attempts + 1))
+        [ $((attempts % 6)) -ne 0 ] || echo "  [wait_for_tx] still waiting for ${tx_hash:0:12}... (${attempts} checks / $((attempts * 5))s)" >&2
+        sleep 5
+    done
+    echo "ERROR: tx $tx_hash not mined after 5 minutes"
+    return 1
+}
+
+# --- State file management ---
+STATE_FILE="${STATE_FILE:-$SCRIPT_DIR/.state}"
+
+state_set() {
+    local key="$1" val="$2"
+    [ -f "$STATE_FILE" ] || touch "$STATE_FILE"
+    # Append; last definition wins when state_load sources the file
+    printf '%s=%s\n' "$key" "$val" >> "$STATE_FILE"
+    export "$key=$val"
+}
+
+state_get() {
+    local key="$1"
+    if [ -n "${!key:-}" ]; then
+        echo "${!key}"
+        return
+    fi
+    if [ -f "$STATE_FILE" ]; then
+        grep "^${key}=" "$STATE_FILE" 2>/dev/null | tail -1 | cut -d= -f2-
+    fi
+}
+
+state_require() {
+    for var in "$@"; do
+        local val
+        val=$(state_get "$var")
+        if [ -z "$val" ]; then
+            echo "ERROR: $var not in state. Run prerequisite step first." && exit 1
+        fi
+        export "$var=$val"
+    done
+}
+
+state_load() {
+    if [ -f "$STATE_FILE" ]; then
+        set -a; source "$STATE_FILE"; set +a
+    fi
+}
+
+state_init() {
+    STATE_FILE="${1:-$STATE_FILE}"
+    export STATE_FILE
+    state_load
+}
+
+# --- Cast helpers ---
+csend() {
+    local key="${SENDER_KEY:-$PRIVATE_KEY_TEST}"
+    local tx_hash
+    tx_hash=$(cast send --gas-limit 9000000000 --rpc-url "$RPC_URL" --private-key "$key" "$@" --json 2>/dev/null | jq -r '.transactionHash // empty')
+    if [ -z "$tx_hash" ]; then
+        echo "ERROR: csend failed to submit tx"
+        return 1
+    fi
+    wait_for_tx "$tx_hash"
+}
+
+ccall() {
+    cast call --rpc-url "$RPC_URL" "$@"
+}
+
+get_deal_field() {
+    local deal_id="$1" field="$2"
+    ccall "$POREP_MARKET" "getDealProposal(uint256)((uint256,address,uint64,(uint16,uint16,uint16,uint8),(uint256,uint256,uint32),address,uint8,uint256,string))" \
+        "$deal_id" 2>/dev/null | sed 's/[()]//g; s/ \[[^]]*\]//g' | tr ',' '\n' | sed -n "${field}p" | tr -d ' '
+}

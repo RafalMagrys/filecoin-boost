@@ -3,3 +3,6 @@ filecoin-pay/
 contract-metaallocator/
 *.log
 .env
+.state
+ts/node_modules/
+ts/dist/

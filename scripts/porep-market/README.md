@@ -11,12 +11,16 @@ Setup and deploy [porep-market](https://github.com/fidlabs/porep-market) contrac
 ## Usage
 
 ```bash
-bash 00_setup.sh          # clone repos, build contracts
-bash 01_extract_key.sh    # extract deployer key from devnet wallet
-bash 02_deploy.sh         # deploy contracts to FEVM
-bash 03_grant_datacap.sh  # grant datacap to Client contract
-bash 04_register_miner.sh # register test miners in SPRegistry
+bash 00_setup.sh                         # clone repos, build contracts
+bash 01_extract_key.sh                   # extract deployer key from devnet wallet
+bash 02_deploy.sh                        # deploy contracts to FEVM
+bash 03_deploy_allocator_and_grant_dc.sh # deploy MetaAllocator, grant datacap to Client
+bash 04_register_miner.sh               # register test miners in SPRegistry
+bash 05_deploy_token.sh                 # deploy MockUSDC, mint to deployer
+bash 06_setup_sli.sh                    # configure SLI oracle
 ```
+
+Or run all steps at once: `just deploy`
 
 Config in `.env` (auto-created from `env.example`).
 

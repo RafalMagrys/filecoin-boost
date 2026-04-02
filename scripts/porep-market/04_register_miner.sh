@@ -26,8 +26,8 @@ register_miner() {
         --private-key "$PRIVATE_KEY_TEST" \
         --rpc-url "$RPC_URL" \
         "$SP_REGISTRY" \
-        "registerProviderFor(uint64,address,(uint16,uint16,uint16,uint8),uint256,uint256,address)" \
-        "$id" "$DEPLOYER" "($retr,$bw,$lat,$idx)" "$avail" "$price" "$DEPLOYER"
+        "registerProviderFor(uint64,address,(uint16,uint16,uint16,uint8),uint256,uint256,address,uint32,uint32)" \
+        "$id" "$DEPLOYER" "($retr,$bw,$lat,$idx)" "$avail" "$price" "$DEPLOYER" 0 0
 
     wait_for_tx
 

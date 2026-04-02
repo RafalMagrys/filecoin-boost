@@ -13,11 +13,18 @@ echo "Deployer: $DEPLOYER"
 cd "$POREP_DIR"
 
 echo "Deploying MockUSDC..."
-USDC_TOKEN=$(forge create "$SCRIPT_DIR/mocks/MockUSDC.sol:MockUSDC" \
-    --constructor-args "Mock USDC" "USDC" \
-    --rpc-url "$RPC_URL" --private-key "$PRIVATE_KEY_TEST" \
-    --broadcast --json 2>/dev/null | jq -r '.deployedTo')
-[ -n "$USDC_TOKEN" ] && [ "$USDC_TOKEN" != "null" ] || { echo "ERROR: MockUSDC deploy failed"; exit 1; }
+DEPLOY_OUTPUT=$(forge script "$SCRIPT_DIR/mocks/DeployMockUSDC.s.sol" \
+    --rpc-url "$RPC_URL" \
+    --private-key "$PRIVATE_KEY_TEST" \
+    --broadcast \
+    --gas-estimate-multiplier 100000 \
+    --disable-block-gas-limit \
+    2>&1)
+
+echo "$DEPLOY_OUTPUT" | grep -q "ONCHAIN EXECUTION COMPLETE & SUCCESSFUL" || { echo "ERROR: MockUSDC deploy failed"; echo "$DEPLOY_OUTPUT" | tail -20; exit 1; }
+
+USDC_TOKEN=$(echo "$DEPLOY_OUTPUT" | grep "USDC_DEPLOYED_TO=" | tail -1 | sed 's/.*USDC_DEPLOYED_TO=//' | tr -d '[:space:]')
+[ -n "$USDC_TOKEN" ] && [ "$USDC_TOKEN" != "null" ] || { echo "ERROR: could not extract USDC address"; exit 1; }
 echo "  MockUSDC: $USDC_TOKEN"
 update_env "USDC_TOKEN" "$USDC_TOKEN"
 wait_for_tx
