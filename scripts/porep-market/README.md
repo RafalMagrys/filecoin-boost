@@ -46,22 +46,18 @@ just import-piece
 just wait-for-claim
 ```
 
-State is persisted in `.state` between steps — resume from any step after a failure.
+Each step writes its outputs to `.state` so the next step can read them.
+Values are updated in-place.
 
-To start a fresh run, delete `.state`:
-
-```bash
-rm -f scripts/porep-market/.state
-```
-
-To run a single step without the full pipeline, pre-populate `.state` from the example:
+Start a fresh run:
 
 ```bash
-cp state.example .state   # edit the values you need
-STATE_FILE=.state bash steps/make_allocation.sh
+cp state.example .state
 ```
 
-See `state.example` for all keys and which step produces each one.
+To resume from a specific step after a failure, just re-run that step — `.state` already has the values from previous steps.
+
+To jump to a specific step, copy `.state` and `.env` from a previous run, or fill in the relevant values from `state.example` manually.
 
 ## Troubleshooting
 

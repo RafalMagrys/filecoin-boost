@@ -66,9 +66,14 @@ STATE_FILE="${STATE_FILE:-$SCRIPT_DIR/.state}"
 
 state_set() {
     local key="$1" val="$2"
-    [ -f "$STATE_FILE" ] || touch "$STATE_FILE"
-    # Append; last definition wins when state_load sources the file
-    printf '%s=%s\n' "$key" "$val" >> "$STATE_FILE"
+    if [ ! -f "$STATE_FILE" ]; then
+        [ -f "$SCRIPT_DIR/state.example" ] && cp "$SCRIPT_DIR/state.example" "$STATE_FILE" || touch "$STATE_FILE"
+    fi
+    if grep -q "^${key}=" "$STATE_FILE" 2>/dev/null; then
+        sed -i '' "s|^${key}=.*|${key}=${val}|" "$STATE_FILE"
+    else
+        echo "${key}=${val}" >> "$STATE_FILE"
+    fi
     export "$key=$val"
 }
 
@@ -79,7 +84,7 @@ state_get() {
         return
     fi
     if [ -f "$STATE_FILE" ]; then
-        grep "^${key}=" "$STATE_FILE" 2>/dev/null | tail -1 | cut -d= -f2-
+        grep "^${key}=" "$STATE_FILE" 2>/dev/null | cut -d= -f2-
     fi
 }
 
