@@ -6,3 +6,4 @@ contract-metaallocator/
 .state
 ts/node_modules/
 ts/dist/
+steps/node_modules/
