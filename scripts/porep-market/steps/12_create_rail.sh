@@ -27,14 +27,15 @@ echo "Sender:    $DEPLOYER"
 # --------------------------
 # SEND TRANSACTION
 # --------------------------
-cast send \
+TX_HASH=$(cast send \
   --rpc-url "$RPC_URL" \
   --private-key "$PRIVATE_KEY_TEST" \
   "$VALIDATOR" \
   "createRail(address)" \
-  "$USDC_TOKEN"
+  "$USDC_TOKEN" \
+  --json | jq -r '.transactionHash')
 
-wait_for_tx
+wait_for_tx "$TX_HASH"
 
 DEAL_ID=$(state_get DEAL_ID)
 if [ -n "$DEAL_ID" ]; then

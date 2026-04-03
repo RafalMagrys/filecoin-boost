@@ -33,7 +33,8 @@ TX=$(cast send \
   "create(uint256)" \
   "$DEAL_ID")
 
-wait_for_tx
+TX_HASH=$(echo "$TX" | jq -r '.transactionHash')
+wait_for_tx "$TX_HASH"
 
 echo "Transaction sent"
 

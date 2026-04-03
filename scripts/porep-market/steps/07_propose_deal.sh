@@ -35,7 +35,7 @@ TX_HASH=$(cast send \
 
 echo "TX: $TX_HASH"
 
-wait_for_tx
+wait_for_tx "$TX_HASH"
 
 echo "Reading receipt..."
 

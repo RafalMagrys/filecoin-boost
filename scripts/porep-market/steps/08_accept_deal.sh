@@ -27,13 +27,14 @@ echo "DealId: $DEAL_ID"
 # --------------------------
 # SEND TRANSACTION
 # --------------------------
-cast send \
+TX_HASH=$(cast send \
   --rpc-url "$RPC_URL" \
   --private-key "$PRIVATE_KEY_TEST" \
   "$POREP_MARKET" \
   "acceptDeal(uint256)" \
-  "$DEAL_ID"
+  "$DEAL_ID" \
+  --json | jq -r '.transactionHash')
 
-wait_for_tx
+wait_for_tx "$TX_HASH"
 
 echo "Deal accepted successfully!"

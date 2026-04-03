@@ -32,15 +32,16 @@ echo "Balance before: $BALANCE_BEFORE"
 echo
 echo "Sending withdraw transaction..."
 
-cast send \
+TX_HASH=$(cast send \
   --rpc-url $RPC_URL \
-  --private-key $PRIVATE_KEY_TEST \
+  --private-key $PRIVATE_KEY_SP \
   --gas-limit 9000000000 \
   $FILECOIN_PAY \
   "withdraw(address,uint256)" \
-  "$USDC_TOKEN" "$AMOUNT"
+  "$USDC_TOKEN" "$AMOUNT" \
+  --json | jq -r '.transactionHash')
 
-wait_for_tx
+wait_for_tx "$TX_HASH"
 
 echo
 echo "Reading balance AFTER..."

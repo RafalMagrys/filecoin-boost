@@ -25,35 +25,35 @@ echo "  Rail:      $RAIL_ID"
 echo "  End epoch: $END_EPOCH (current $CURRENT_BLOCK + ${END_EPOCH_OFFSET:-100})"
 echo "  Min interval: $MIN_INTERVAL"
 
-cast send \
+TX_HASH=$(cast send \
     --rpc-url "$RPC_URL" \
     --private-key "$PRIVATE_KEY_TEST" \
     --gas-limit 9000000000 \
     "$VALIDATOR" \
     "setDealEndEpoch(uint256,int64)" "$DEAL_ID" "$END_EPOCH" \
-    > /dev/null
-wait_for_tx
+    --json | jq -r '.transactionHash')
+wait_for_tx "$TX_HASH"
 echo "  setDealEndEpoch done"
 
-cast send \
+TX_HASH=$(cast send \
     --rpc-url "$RPC_URL" \
     --private-key "$PRIVATE_KEY_TEST" \
     --gas-limit 9000000000 \
     "$VALIDATOR" \
     "setMinEpochsBetweenSettlements(uint256)" "$MIN_INTERVAL" \
-    > /dev/null
-wait_for_tx
+    --json | jq -r '.transactionHash')
+wait_for_tx "$TX_HASH"
 echo "  setMinEpochsBetweenSettlements done"
 
-cast send \
+TX_HASH=$(cast send \
     --rpc-url "$RPC_URL" \
     --private-key "$PRIVATE_KEY_TEST" \
     --gas-limit 9000000000 \
     "$VALIDATOR" \
     "modifyRailPayment(uint256)" \
-    "$RAIL_ID"
-
-wait_for_tx
+    "$RAIL_ID" \
+    --json | jq -r '.transactionHash')
+wait_for_tx "$TX_HASH"
 echo "  modifyRailPayment done"
 
 echo "  Waiting ${SETTLE_WAIT}s for blocks to advance..."
