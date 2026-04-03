@@ -32,6 +32,3 @@ END_EPOCH=
 
 # set by: settle_rail.sh
 PAID_AMOUNT=
-
-# set by: withdraw.sh
-SP_ERC20_BALANCE=
