@@ -43,7 +43,7 @@ fi
 
 # Pause non-miner providers
 for FAKE_ID in 1001 1002; do
-    IS_PAUSED=$(ccall "$SP_REGISTRY" "getProviderInfo(uint64)((address,address,bool,bool,(uint16,uint16,uint16,uint8),uint256,uint256,uint256,uint256))" "$FAKE_ID" 2>/dev/null | sed 's/[()]//g' | cut -d',' -f3 | tr -d ' ')
+    IS_PAUSED=$(ccall "$SP_REGISTRY" "getProviderInfo(uint64)((address,address,bool,bool,(uint16,uint16,uint16,uint8),uint256,uint256,uint256,uint256,uint32,uint32))" "$FAKE_ID" 2>/dev/null | sed 's/[()]//g' | cut -d',' -f3 | tr -d ' ')
     if [ "$IS_PAUSED" != "true" ]; then
         csend "$SP_REGISTRY" "pauseProvider(uint64)" "$FAKE_ID"
     fi
