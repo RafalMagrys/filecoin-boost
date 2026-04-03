@@ -31,7 +31,7 @@ TX_HASH=$(cast send \
     --gas-limit 9000000000 \
     "$VALIDATOR" \
     "setDealEndEpoch(uint256,int64)" "$DEAL_ID" "$END_EPOCH" \
-    --json | jq -r '.transactionHash')
+    --json 2>/dev/null | jq -r '.transactionHash')
 wait_for_tx "$TX_HASH"
 echo "  setDealEndEpoch done"
 
@@ -41,7 +41,7 @@ TX_HASH=$(cast send \
     --gas-limit 9000000000 \
     "$VALIDATOR" \
     "setMinEpochsBetweenSettlements(uint256)" "$MIN_INTERVAL" \
-    --json | jq -r '.transactionHash')
+    --json 2>/dev/null | jq -r '.transactionHash')
 wait_for_tx "$TX_HASH"
 echo "  setMinEpochsBetweenSettlements done"
 
@@ -52,7 +52,7 @@ TX_HASH=$(cast send \
     "$VALIDATOR" \
     "modifyRailPayment(uint256)" \
     "$RAIL_ID" \
-    --json | jq -r '.transactionHash')
+    --json 2>/dev/null | jq -r '.transactionHash')
 wait_for_tx "$TX_HASH"
 echo "  modifyRailPayment done"
 
