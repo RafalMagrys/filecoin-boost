@@ -4,15 +4,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 require_env PRIVATE_KEY_TEST FILECOIN_PAY USDC_TOKEN VALIDATOR_FACTORY
 
-DEAL_ID="${1:-}"
-DEPOSIT_AMOUNT_INPUT="${2:-1000}"
+state_load
+state_require DEAL_ID
 
-if [ -z "$DEAL_ID" ]; then
-    echo "No deal ID provided"
-    echo "Usage: $0 <deal_id> [deposit_amount]"
-    echo ""
-    exit 1
-fi
+DEPOSIT_AMOUNT_INPUT="${1:-1000}"
 
 VALIDATOR_ADDR=$(cast call \
   --rpc-url "$RPC_URL" \

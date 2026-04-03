@@ -5,24 +5,24 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
 require_devnet
-require_env PRIVATE_KEY_TEST FILECOIN_PAY
+require_env PRIVATE_KEY_TEST FILECOIN_PAY USDC_TOKEN
 
-RAIL_ID="${1:-}"
+state_load
+state_require SP_WALLET
 
-if [ -z "$RAIL_ID" ]; then
-    echo "Usage: $0 <RAIL_ID>"
-    echo "Example: $0 42"
-    exit 1
-fi
+RAIL_ID="${1:-$(state_get RAIL_ID)}"
+[ -n "$RAIL_ID" ] || { echo "ERROR: RAIL_ID required (arg or state)"; exit 1; }
 
 UNTIL_EPOCH=$(cast bn --rpc-url $RPC_URL)
 
 echo "Method:       settleRail(uint256,uint256)"
 echo "Rail ID:      $RAIL_ID"
 echo "Until epoch:  $UNTIL_EPOCH"
-echo ""
 
-SETTLE_RAIL_TX_HASH=$(cast send \
+SP_BEFORE=$(ccall "$FILECOIN_PAY" "accounts(address,address)(uint256,uint256,uint256,uint256)" \
+    "$USDC_TOKEN" "$SP_WALLET" 2>/dev/null | head -1 | sed 's/[()]//g' | awk '{print $1}')
+
+cast send \
   $FILECOIN_PAY \
   "settleRail(uint256,uint256)" \
   $RAIL_ID \
@@ -30,27 +30,18 @@ SETTLE_RAIL_TX_HASH=$(cast send \
   --rpc-url $RPC_URL \
   --private-key $PRIVATE_KEY_TEST \
   --gas-limit 9000000000 \
-  --json | jq -r '.transactionHash')
+  --json | jq -r '.transactionHash' | xargs -I{} echo "Transaction: {}"
 
 wait_for_tx
 
-echo "Transaction: $SETTLE_RAIL_TX_HASH"
+SP_AFTER=$(ccall "$FILECOIN_PAY" "accounts(address,address)(uint256,uint256,uint256,uint256)" \
+    "$USDC_TOKEN" "$SP_WALLET" 2>/dev/null | head -1 | sed 's/[()]//g' | awk '{print $1}')
 
-# --------------------------
-# FETCH RECEIPT
-# --------------------------
+PAID_AMOUNT=$((SP_AFTER - SP_BEFORE))
+[ "$PAID_AMOUNT" -gt 0 ] || { echo "ERROR: SP balance did not increase after settlement"; exit 1; }
 
-RECEIPT=$(cast receipt $SETTLE_RAIL_TX_HASH --rpc-url $RPC_URL --json)
+state_set PAID_AMOUNT "$PAID_AMOUNT"
 
-EVENT_DATA=$(echo "$RECEIPT" | jq -r '.logs[0].data')
-
-# decode event payload
-read _ TOTAL_SETTLED _ _ _ _ <<< $(cast abi-decode \
-"(uint256,uint256,uint256,uint256,uint256,uint256)" \
-$EVENT_DATA)
-
-echo "Rail settlement result"
-echo "Rail ID:              $RAIL_ID"
-echo "Total settled amount: $TOTAL_SETTLED"
-
+echo "Rail ID:      $RAIL_ID"
+echo "SP earned:    $PAID_AMOUNT attoUSDC"
 echo "Done."

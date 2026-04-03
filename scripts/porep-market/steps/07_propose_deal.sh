@@ -51,6 +51,7 @@ DEAL_ID=$(echo "$RECEIPT" | jq -r --arg sig "$EVENT_SIG" '
 ' | cast to-dec)
 
 echo "DealProposalCreated event caught, dealId = $DEAL_ID"
+state_set DEAL_ID "$DEAL_ID"
 
 # --------------------------
 # CALL getDealProposal

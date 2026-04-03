@@ -9,7 +9,10 @@ require_devnet
 require_env PRIVATE_KEY_TEST
 require_env VALIDATOR_FACTORY
 
-DEAL_ID=${1:?dealId required}
+state_load
+
+DEAL_ID="${1:-$(state_get DEAL_ID)}"
+[ -n "$DEAL_ID" ] || { echo "ERROR: DEAL_ID required (arg or state)"; exit 1; }
 
 DEPLOYER=$(cast wallet address "$PRIVATE_KEY_TEST")
 
@@ -45,6 +48,7 @@ VALIDATOR=$(echo "$TX" | jq -r '
 ' | sed 's/^0x000000000000000000000000/0x/')
 
 echo "Validator address: $VALIDATOR"
+state_set VALIDATOR "$VALIDATOR"
 
 # --------------------------
 # SAVE TO validators.json

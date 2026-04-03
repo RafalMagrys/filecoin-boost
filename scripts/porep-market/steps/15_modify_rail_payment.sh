@@ -5,14 +5,13 @@ source "$SCRIPT_DIR/_common.sh"
 require_devnet
 require_env PRIVATE_KEY_TEST
 
-VALIDATOR="${1:-}"
-RAIL_ID="${2:-}"
+state_load
 
-if [ -z "$VALIDATOR" ] || [ -z "$RAIL_ID" ]; then
-    echo "Usage: $0 <VALIDATOR_ADDRESS> <RAIL_ID>"
-    echo "Example: $0 0xAbCd...1234 42"
-    exit 1
-fi
+VALIDATOR="${1:-$(state_get VALIDATOR)}"
+RAIL_ID="${2:-$(state_get RAIL_ID)}"
+
+[ -n "$VALIDATOR" ] || { echo "ERROR: VALIDATOR required (arg or state)"; exit 1; }
+[ -n "$RAIL_ID" ] || { echo "ERROR: RAIL_ID required (arg or state)"; exit 1; }
 
 echo "Method:   modifyRailPayment(uint256)"
 echo "Validator: $VALIDATOR"

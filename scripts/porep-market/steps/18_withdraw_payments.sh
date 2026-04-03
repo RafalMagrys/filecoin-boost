@@ -5,15 +5,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
 require_devnet
-require_env PRIVATE_KEY_TEST FILECOIN_PAY USDC_TOKEN DEPLOYER
 
-AMOUNT="${1:-}"
+state_load
+state_require DEPLOYER
+require_env PRIVATE_KEY_TEST FILECOIN_PAY USDC_TOKEN
 
-if [ -z "$AMOUNT" ]; then
-    echo "Usage: $0 <AMOUNT>"
-    echo "Example: $0 42000000   # 42 USDC (6 decimals)"
-    exit 1
-fi
+AMOUNT="${1:-$(state_get PAID_AMOUNT)}"
+[ -n "$AMOUNT" ] || { echo "ERROR: AMOUNT required (arg or state PAID_AMOUNT)"; exit 1; }
 
 echo "Method:   withdraw(address,uint256)"
 echo "Token:    $USDC_TOKEN"
