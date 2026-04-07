@@ -18,7 +18,8 @@ else
     [ -n "$CLIENT_F4" ] || { echo "ERROR: Could not resolve client f4 address for $CLIENT_ACTOR"; exit 1; }
 fi
 
-FULLNODE_API=$(docker exec lotus lotus auth api-info --perm=admin 2>/dev/null | cut -d= -f2-)
+FULLNODE_API=$(docker exec lotus lotus auth api-info --perm=admin | cut -d= -f2-)
+[ -n "$FULLNODE_API" ] || { echo "ERROR: Could not get FULLNODE_API_INFO from lotus — is the lotus container running?"; exit 1; }
 
 echo "=== Import Piece ==="
 echo "  Allocation: $ALLOC_ID"

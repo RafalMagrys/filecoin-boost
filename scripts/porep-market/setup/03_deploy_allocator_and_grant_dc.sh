@@ -9,6 +9,11 @@ require_env CLIENT_CONTRACT
 DEPLOYER=$(cast wallet address "$PRIVATE_KEY_TEST")
 echo "Deployer: $DEPLOYER"
 
+# Genesis root key holders must be present — lost if lotus container was recreated
+WALLET_LIST=$(docker exec lotus lotus wallet list 2>/dev/null)
+echo "$WALLET_LIST" | grep -q "t0100" || { echo "ERROR: t0100 not in lotus wallet — devnet genesis keys missing. Run 'make devnet/down && make devnet/up' to reset."; exit 1; }
+echo "$WALLET_LIST" | grep -q "t0101" || { echo "ERROR: t0101 not in lotus wallet — devnet genesis keys missing. Run 'make devnet/down && make devnet/up' to reset."; exit 1; }
+
 # Fund deployer (idempotent)
 docker exec lotus lotus send "$DEPLOYER" 10000 2>/dev/null || true
 wait_for_tx
