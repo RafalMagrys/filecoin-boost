@@ -31,7 +31,7 @@ update_env() {
     local key="$1" val="$2"
     [ -f "$ENV_FILE" ] || cp "$SCRIPT_DIR/../env.example" "$ENV_FILE"
     if grep -q "^${key}=" "$ENV_FILE" 2>/dev/null; then
-        sed -i '' "s|^${key}=.*|${key}=${val}|" "$ENV_FILE"
+        sed -i "s|^${key}=.*|${key}=${val}|" "$ENV_FILE"
     else
         echo "${key}=${val}" >> "$ENV_FILE"
     fi
@@ -61,6 +61,17 @@ wait_for_tx() {
     return 1
 }
 
+wait_for_block() {
+    local target_block="${1:-}"
+    local current_block
+    current_block=$(cast block-number --rpc-url "$RPC_URL" 2>/dev/null)
+    while [ "$current_block" -lt "$target_block" ]; do
+        echo "  [wait_for_block] still waiting for ${target_block} (${current_block} / ${target_block})" >&2
+        sleep 5
+        current_block=$(cast block-number --rpc-url "$RPC_URL" 2>/dev/null)
+    done
+}
+
 # --- State file management ---
 STATE_FILE="${STATE_FILE:-$SCRIPT_DIR/../.state}"
 
@@ -70,7 +81,7 @@ state_set() {
         [ -f "$SCRIPT_DIR/../state.example" ] && cp "$SCRIPT_DIR/../state.example" "$STATE_FILE" || touch "$STATE_FILE"
     fi
     if grep -q "^${key}=" "$STATE_FILE" 2>/dev/null; then
-        sed -i '' "s|^${key}=.*|${key}=${val}|" "$STATE_FILE"
+        sed -i "s|^${key}=.*|${key}=${val}|" "$STATE_FILE"
     else
         echo "${key}=${val}" >> "$STATE_FILE"
     fi

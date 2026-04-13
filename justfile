@@ -14,12 +14,12 @@ stop:
 
 # deploy porep-market contracts to running devnet
 deploy:
-    bash {{scripts}}/00_setup.sh
-    bash {{scripts}}/01_extract_key.sh
-    bash {{scripts}}/02_deploy.sh
-    bash {{scripts}}/03_deploy_allocator_and_grant_dc.sh
-    bash {{scripts}}/04_register_miner.sh
-    bash {{scripts}}/05_deploy_token.sh
+    bash {{scripts}}/setup/00_setup.sh
+    bash {{scripts}}/setup/01_extract_key.sh
+    bash {{scripts}}/setup/02_deploy.sh
+    bash {{scripts}}/setup/03_deploy_allocator_and_grant_dc.sh
+    bash {{scripts}}/setup/04_register_miner.sh
+    bash {{scripts}}/setup/05_deploy_token.sh
     bash {{scripts}}/06_setup_sli.sh
 
 

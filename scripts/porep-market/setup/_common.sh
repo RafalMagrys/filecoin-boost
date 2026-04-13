@@ -31,7 +31,7 @@ update_env() {
     local key="$1" val="$2"
     [ -f "$ENV_FILE" ] || cp "$SCRIPT_DIR/../env.example" "$ENV_FILE"
     if grep -q "^${key}=" "$ENV_FILE" 2>/dev/null; then
-        sed -i '' "s|^${key}=.*|${key}=${val}|" "$ENV_FILE"
+        sed -i "s|^${key}=.*|${key}=${val}|" "$ENV_FILE"
     else
         echo "${key}=${val}" >> "$ENV_FILE"
     fi
@@ -70,7 +70,7 @@ state_set() {
         [ -f "$SCRIPT_DIR/../state.example" ] && cp "$SCRIPT_DIR/../state.example" "$STATE_FILE" || touch "$STATE_FILE"
     fi
     if grep -q "^${key}=" "$STATE_FILE" 2>/dev/null; then
-        sed -i '' "s|^${key}=.*|${key}=${val}|" "$STATE_FILE"
+        sed -i "s|^${key}=.*|${key}=${val}|" "$STATE_FILE"
     else
         echo "${key}=${val}" >> "$STATE_FILE"
     fi

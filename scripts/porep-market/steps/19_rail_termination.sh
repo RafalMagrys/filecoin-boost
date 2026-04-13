@@ -5,28 +5,40 @@ source "$SCRIPT_DIR/_common.sh"
 require_devnet
 require_env PRIVATE_KEY_TEST
 
-VALIDATOR="${1:-}"
-RAIL_ID="${2:-}"
-
-if [ -z "$VALIDATOR" ] || [ -z "$RAIL_ID" ]; then
-    echo "Usage: $0 <VALIDATOR_ADDRESS> <RAIL_ID>"
-    echo "Example: $0 0xAbCd...1234 42"
-    exit 1
-fi
+state_load
+state_require VALIDATOR RAIL_ID
 
 echo "Method:   terminateRail(uint256)"
 echo "Caller:   $VALIDATOR"
-echo "Rail ID:  $RAIL_ID"
+echo "RailID:   $RAIL_ID"
 echo ""
 
-cast send \
+TX_HASH=$(cast send \
     --rpc-url "$RPC_URL" \
     --private-key "$PRIVATE_KEY_TEST" \
     --gas-limit 9000000000 \
     "$VALIDATOR" \
     "terminateRail(uint256)" \
-    "$RAIL_ID"
+    "$RAIL_ID" \
+    --json 2>/dev/null | jq -r '.transactionHash')
 
-wait_for_tx
+wait_for_tx "$TX_HASH"
 
-echo "Done."
+RECEIPT=$(cast receipt --rpc-url "$RPC_URL" "$TX_HASH" --json)
+TERMINATION_BLOCK=$(echo "$RECEIPT" | jq -r '.blockNumber' | cast --to-dec)
+TERMINATION_TX_HASH="$TX_HASH"
+
+EVENT_SIG=$(cast keccak "RailTerminated(uint256,address,uint256)")
+TERMINATION_END_EPOCH=$(echo "$RECEIPT" | jq -r --arg sig "$EVENT_SIG" '
+    .logs[] | select(.topics[0] == $sig) | .data
+' | head -1 | cast --to-dec)
+
+state_set TERMINATION_BLOCK "$TERMINATION_BLOCK"
+state_set TERMINATION_TX_HASH "$TERMINATION_TX_HASH"
+state_set TERMINATION_END_EPOCH "$TERMINATION_END_EPOCH"
+
+echo ""
+echo "=== Termination completed ==="
+echo "  Termination block:     $TERMINATION_BLOCK"
+echo "  Termination end epoch: $TERMINATION_END_EPOCH"
+echo "  Termination tx hash:   $TERMINATION_TX_HASH"
